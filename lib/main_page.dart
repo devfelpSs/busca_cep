@@ -37,7 +37,7 @@ class MainPageState extends State<MainPage> {
                     controller: cepController,
                     keyboardType: TextInputType.number,
                     //onChanged: (){},
-                    decoration: const InputDecoration(hintText: 'teste'),
+                    decoration: const InputDecoration(hintText: 'CEP'),
                   )
                 ],
               )

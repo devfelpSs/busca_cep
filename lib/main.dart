@@ -4,5 +4,5 @@ import 'package:busca_cep/my_app.dart';
 
 
 void main() {
-  runApp(const MainPage());
+  runApp(const MyApp());
 }

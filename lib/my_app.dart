@@ -13,7 +13,6 @@ class MyApp extends StatelessWidget {
       textTheme: GoogleFonts.montserratTextTheme()),
       home: const MainPage(),
     );
-
   }
 }
 
