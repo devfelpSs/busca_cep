@@ -1,24 +1,8 @@
+import 'package:busca_cep/main_page.dart';
 import 'package:flutter/material.dart';
+import 'package:busca_cep/my_app.dart';
+
 
 void main() {
-  runApp(MaterialApp(
-    title: 'Flutter Tutorial',
-    home: MyApp(),
-    debugShowCheckedModeBanner: false,
-  ));
-}
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text(
-          'Busca CEP',
-        ),
-      ),
-      body: Container(),
-    );
-  }
+  runApp(const MainPage());
 }
