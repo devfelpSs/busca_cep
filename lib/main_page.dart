@@ -1,4 +1,7 @@
+import 'package:busca_cep/image_assets.dart/image_assets.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:path_provider/path_provider.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage ({Key? key}) : super(key: key);
@@ -29,6 +32,10 @@ class MainPageState extends State<MainPage> {
           children: [
             const Text("Busca CEP", style: TextStyle(fontSize: 22),
             ),
+            /*ListTile( //Adicionar aqui o logo
+              leading: 
+            ),*/
+
             Expanded(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
