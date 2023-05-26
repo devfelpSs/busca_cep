@@ -32,9 +32,9 @@ class MainPageState extends State<MainPage> {
           children: [
             const Text("Busca CEP", style: TextStyle(fontSize: 22),
             ),
-            /*ListTile( //Adicionar aqui o logo
-              leading: 
-            ),*/
+            ListTile( //Adicionar aqui o logo
+              leading: Image.asset(AppImages.image1)
+            ),
 
             Expanded(
               child: Column(
