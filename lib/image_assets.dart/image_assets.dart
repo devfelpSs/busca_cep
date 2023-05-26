@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 class AppImages {
-  static String get image1 => "lib/images/logo_busca_cep.png";
+  static String get image1 => "lib/images/logo.png";
+  static String get image2 => "lib/images/logo_busca_cep.png";
 }
 
 
@@ -17,7 +18,7 @@ class _ImageAssetsPageState extends State<ImageAssetsPage> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Image.asset(AppImages.image1, height: 50,),
+        Image.asset(AppImages.image1, height: 500,),
       ],
     );
   }

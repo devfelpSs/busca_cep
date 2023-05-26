@@ -1,7 +1,10 @@
 import 'package:busca_cep/image_assets.dart/image_assets.dart';
+import 'package:busca_cep/repository/viacep_repo.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:path_provider/path_provider.dart';
+
+import 'model/viacep_model.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage ({Key? key}) : super(key: key);
@@ -11,13 +14,15 @@ class MainPage extends StatefulWidget {
 }
 
 class MainPageState extends State<MainPage> {
-
+  //VARIAVEIS:
+  var cepController = TextEditingController(text: "");
+  bool loading = false;
+  var viacepModel = ViaCEPModel();
+  var ViaCEPRepository = ViaCepRepository();
   //ApiFunction apifunc = ApiFunctionService();
 
   @override
   Widget build(BuildContext context) {
-    //VARIAVEIS:
-    var cepController = TextEditingController(text: "");
 
    return SafeArea(
     child: Scaffold(
@@ -30,29 +35,41 @@ class MainPageState extends State<MainPage> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Column(
           children: [
+            const SizedBox(height: 100,),
             const Text("Busca CEP", style: TextStyle(fontSize: 22),
             ),
-            ListTile( //Adicionar aqui o logo
-              leading: Image.asset(AppImages.image1)
+            /*ListTile( //Adicionar aqui o logo
+              leading: Image.asset(AppImages.image1),
+            ),*/
+            TextField( 
+              controller: cepController,
+              keyboardType: TextInputType.number,
+               onChanged: (String value) async {
+                var cep = value.trim().replaceAll(new RegExp(r'[^0-9]'),'');
+                if (cep.length == 8){
+                  setState(() {
+                    loading = true;
+                  });
+                  viacepModel = await ViaCEPRepository.consultarCEP(cep);
+                }
+                setState(() {
+                  loading = false;
+                });
+               },
             ),
-
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  TextField( 
-                    controller: cepController,
-                    keyboardType: TextInputType.number,
-                    //onChanged: (){},
-                    decoration: const InputDecoration(hintText: 'CEP'),
-                  )
-                ],
-              )
-            )
+            const SizedBox(height: 50,),
+            Text(
+              viacepModel.logradouro ?? "",
+              style: const TextStyle(fontSize: 22),
+            ),
+            Text(
+              "${viacepModel.localidade ?? ""} - ${viacepModel.uf ?? ""}",
+              style: const TextStyle(fontSize: 22),
+            ),
+            Visibility(visible: loading,child: const CircularProgressIndicator()),
           ],
-        ),
-      ),
-    ));
+        )
+      )
+    ),);
   }
-
 }
