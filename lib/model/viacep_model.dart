@@ -1,6 +1,6 @@
 //EU UTILIZEI UM SITE CHAMADO: "JSON TO DART" para converter o código abaixo que era em json to dart
 
-//MUITO PROVAVELMENTE TEREI QUE EXPORTAR ESSE CÓDIGO PARA O BACK4APP
+//EXPORTAR ESSA API DOS CORREIOS PARA O BACK4APP:
 
 class ViaCEPModel {
   String? cep;
