@@ -14,3 +14,5 @@ class ViaCepRepository {
   }
   
 }
+
+//EXPORTAR ESSA FUNÇÃO PARA O BACK4APP
