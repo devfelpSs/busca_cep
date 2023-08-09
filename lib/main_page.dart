@@ -1,222 +1,75 @@
+import 'package:busca_cep/image_assets.dart/image_assets.dart';
+import 'package:busca_cep/repository/viacep_repo.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:path_provider/path_provider.dart';
 
-import 'back4app/ceps_back4app_repository.dart';
-import 'model/ceps_back4app_model.dart';
+import 'model/viacep_model.dart';
 
-Future<Map<String, dynamic>> consultarCep(String cep) async {
-  final response =
-      await http.get(Uri.parse('https://viacep.com.br/ws/$cep/json/'));
-  if (response.statusCode == 200) {
-    return jsonDecode(response.body);
-  } else {
-    throw Exception('Falha ao consultar o CEP');
-  }
+class MainPage extends StatefulWidget {
+  const MainPage ({Key? key}) : super(key: key);
+  
+  @override
+  State<MainPage> createState() => MainPageState();
 }
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
-  final repository = CEPSBack4AppRepository();
-  final ceps = await repository.getCPFs();
-
-  for (final cep in ceps.results) {
-    print(cep.cep);
-  }
-
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class MainPageState extends State<MainPage> {
+  //VARIAVEIS:
+  var cepController = TextEditingController(text: "");
+  bool loading = false;
+  var viacepModel = ViaCEPModel();
+  var ViaCEPRepository = ViaCepRepository();
+  //ApiFunction apifunc = ApiFunctionService();
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      title: 'Consulta CEP',
-      home: MyHomePage(key: Key('my_home_page'), title: 'Consulta CEP'),
-    );
-  }
-}
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({required Key key, required this.title}) : super(key: key);
-
-  final String title;
-
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  final _formKey = GlobalKey<FormState>();
-  final _cepController = TextEditingController();
-  CEPSBack4AppModel? ceps;
-  String buttonText = 'Consultar'; // Add this line
-  String? objectId;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadCEPs();
-  }
-
-  Future<void> _loadCEPs() async {
-    final repository = CEPSBack4AppRepository();
-    ceps = await repository.getCPFs();
-    setState(() {});
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
+   return SafeArea(
+    child: Scaffold(
+      appBar: AppBar(title: const Text("Correios", style: TextStyle(color: Colors.black),),
+      centerTitle: true,
+      backgroundColor: Colors.yellowAccent,
+      shadowColor: Colors.yellow,
       ),
-      body: Form(
-        key: _formKey,
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Column(
-          children: <Widget>[
-            Center(
-              child: SizedBox(
-                width: MediaQuery.of(context).size.width * 0.8,
-                child: TextFormField(
-                  controller: _cepController,
-                  decoration: const InputDecoration(labelText: 'CEP'),
-                  keyboardType: TextInputType.number,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Por favor, insira o CEP';
-                    }
-                    if (!RegExp(r'^[0-9]{5}-[0-9]{3}$').hasMatch(value)) {
-                      return 'Por favor, insira um CEP válido';
-                    }
-                    return null;
-                  },
-                ),
-              ),
+          children: [
+            const SizedBox(height: 100,),
+            const Text("Busca CEP", style: TextStyle(fontSize: 22),
             ),
-            ElevatedButton(
-              onPressed: () async {
-                if (_formKey.currentState?.validate() == true) {
-                  if (buttonText == 'Consultar') {
-                    try {
-                      final endereco = await consultarCep(_cepController.text);
-                      if (endereco['localidade'] == null) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('CEP não encontrado')),
-                        );
-                      } else {
-                        final repository = CEPSBack4AppRepository();
-                        final cepExists =
-                            await repository.cepExists(_cepController.text);
-                        if (!cepExists) {
-                          await repository.registerCep(_cepController.text);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                                content: Text('CEP registrado com sucesso')),
-                          );
-                          await _loadCEPs();
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                                content:
-                                    Text('Cidade: ${endereco['localidade']}')),
-                          );
-                        }
-                      }
-                    } catch (e) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('CEP não encontrado')),
-                      );
-                    }
-                    _cepController.clear();
-                  }
-                } else {
-                  try {
-                    final endereco = await consultarCep(_cepController.text);
-                    print(endereco); // Debug do corrigir
-                    if (endereco['localidade'] == null) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('CEP não encontrado')),
-                      );
-                    } else {
-                      final repository = CEPSBack4AppRepository();
-                      await repository.updateCPF(
-                        objectId!, // Replace with the actual objectId
-                        {'cep': _cepController.text},
-                      );
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('CEP corrigido')),
-                      );
-                      await _loadCEPs();
-                      setState(() {
-                        buttonText = 'Consultar';
-                      });
-                    }
-                  } catch (e) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('CEP não encontrado')),
-                    );
-                  }
+            /*ListTile( //Adicionar aqui o logo
+              leading: Image.asset(AppImages.image1),
+            ),*/
+            TextField( 
+              controller: cepController,
+              keyboardType: TextInputType.number,
+               onChanged: (String value) async {
+                var cep = value.trim().replaceAll(new RegExp(r'[^0-9]'),'');
+                if (cep.length == 8){
+                  setState(() {
+                    loading = true;
+                  });
+                  viacepModel = await ViaCEPRepository.consultarCEP(cep);
                 }
-              },
-              child: Text(buttonText),
+                setState(() {
+                  loading = false;
+                });
+               },
             ),
-            if (ceps != null)
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Text(
-                  "CEP's Consultados:",
-                  style: Theme.of(context).textTheme.headline6,
-                ),
-              ),
-            Expanded(
-              child: ListView.builder(
-                itemCount: ceps!.results.length,
-                itemBuilder: (context, index) {
-                  final cep = ceps!.results[ceps!.results.length - index - 1];
-                  return Center(
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: Icon(Icons.edit),
-                          onPressed: () {
-                            setState(() {
-                              _cepController.text = cep.cep;
-                              buttonText = 'Corrigir';
-                              objectId = cep.objectId;
-                            });
-                          },
-                        ),
-                        SizedBox(width: 16),
-                        Text(cep.cep),
-                        SizedBox(width: 16),
-                        IconButton(
-                          icon: Icon(Icons.delete),
-                          onPressed: () async {
-                            final id = objectId; // Add this line
-                            if (id != null) {
-                              // Call the deleteCPF method on the repository instance
-                              final repository = CEPSBack4AppRepository();
-                              await repository
-                                  .deleteCPF(id); // Update this line
-                              // Reload the list of CEPs
-                              await _loadCEPs();
-                            }
-                          },
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
+            const SizedBox(height: 50,),
+            Text(
+              viacepModel.logradouro ?? "",
+              style: const TextStyle(fontSize: 22),
             ),
+            Text(
+              "${viacepModel.localidade ?? ""} - ${viacepModel.uf ?? ""}",
+              style: const TextStyle(fontSize: 22),
+            ),
+            Visibility(visible: loading,child: const CircularProgressIndicator()),
           ],
-        ),
-      ),
-    );
+        )
+      )
+    ),);
   }
 }
